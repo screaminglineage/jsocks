@@ -1,5 +1,5 @@
-#[derive(Debug)]
-enum TokenKind {
+#[derive(Debug, PartialEq, Clone)]
+pub enum TokenKind {
     LeftBrace,
     RightBrace,
     LeftBracket,
@@ -17,12 +17,13 @@ enum TokenKind {
     Dot,
     String(String),
     Number(f64),
+    EOF,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
-    kind: TokenKind,
-    position: usize,
+    pub kind: TokenKind,
+    pub position: usize,
 }
 
 impl Token {
@@ -175,6 +176,7 @@ impl Lexer {
             }
             self.next();
         }
+        tokens.push(Token::new(TokenKind::EOF, self.index - 1));
         return Some(tokens);
     }
 }
