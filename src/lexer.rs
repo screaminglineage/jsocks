@@ -17,7 +17,6 @@ pub enum TokenKind {
     Dot,
     String(String),
     Number(f64),
-    EOF,
 }
 
 #[derive(Debug, Clone)]
@@ -176,7 +175,6 @@ impl Lexer {
             }
             self.next();
         }
-        tokens.push(Token::new(TokenKind::EOF, self.index - 1));
         return Some(tokens);
     }
 }

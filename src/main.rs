@@ -16,7 +16,7 @@ fn main() -> io::Result<()> {
 
     let mut parser = Parser::new(tokens);
     let json = parser.parse();
-    println!("{json:?}");
+    println!("{json:#?}");
 
     Ok(())
 }

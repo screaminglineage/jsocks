@@ -44,8 +44,8 @@ impl Parser {
         Self { tokens, current: 0 }
     }
 
-    pub fn parse(&mut self) -> Option<Vec<JsonValue>> {
-        match self.elements() {
+    pub fn parse(&mut self) -> Option<JsonValue> {
+        match self.json() {
             Ok(v) => Some(v),
             Err(e) => {
                 eprintln!("{} at {}", e.msg, e.location);
@@ -77,14 +77,15 @@ impl Parser {
         }
     }
 
-    fn elements(&mut self) -> Result<Vec<JsonValue>, JsonParseError> {
-        let mut elements = Vec::new();
-        elements.push(self.value()?);
-        while self.check(tk::Comma) {
-            self.advance();
-            elements.push(self.value()?);
+    fn json(&mut self) -> JsonResult {
+        let value = self.value()?;
+        if let Some(_) = self.peek() {
+            return Err(JsonParseError::new(
+                String::from("Unexpected element after value"),
+                self,
+            ));
         }
-        return Ok(elements);
+        Ok(value)
     }
 
     #[rustfmt::skip]
@@ -98,15 +99,13 @@ impl Parser {
             Some(Token { kind: tk::False, ..}) => Ok(JsonValue::JsonBool(JsonBool::False)),
             Some(Token { kind: tk::Null, ..}) => Ok(JsonValue::Null),
 
-            Some(Token { kind: tk::EOF, ..}) => {
-                Err(JsonParseError::new(String::from("Unexpected EOF. Expected value"), self))
-            }
             _ => Err(JsonParseError::new(String::from("Expected value"), self)),
         }
     }
 
     fn object(&mut self) -> JsonResult {
         if self.check(tk::RightBrace) {
+            self.advance();
             return Ok(JsonValue::Object(HashMap::new()));
         }
         let mut members = HashMap::new();
@@ -126,6 +125,7 @@ impl Parser {
 
     fn array(&mut self) -> JsonResult {
         if self.check(tk::RightBracket) {
+            self.advance();
             return Ok(JsonValue::Array(Vec::new()));
         }
         let mut elements = Vec::new();
