@@ -109,11 +109,11 @@ impl Parser {
             return Ok(JsonValue::Object(HashMap::new()));
         }
         let mut members = HashMap::new();
-        self.member(&mut members);
+        self.member(&mut members)?;
 
         while self.check(tk::Comma) {
             self.advance();
-            self.member(&mut members);
+            self.member(&mut members)?;
         }
 
         if !self.check(tk::RightBrace) {
@@ -144,6 +144,7 @@ impl Parser {
 
     fn string(&mut self) -> JsonResult {
         if self.check(tk::DoubleQuote) {
+            self.advance();
             return Ok(JsonValue::String(String::new()));
         }
 
@@ -166,7 +167,18 @@ impl Parser {
         }
     }
 
-    fn member(&mut self, object: &mut HashMap<String, JsonValue>) {
-        todo!()
+    fn member(&mut self, object: &mut HashMap<String, JsonValue>) -> Result<(), JsonParseError> {
+        self.advance();
+        let JsonValue::String(str) = self.string()? else {
+            return Err(JsonParseError::new(String::from("Expected String"), self));
+        };
+
+        if self.check(tk::Colon) {
+            self.advance();
+            let value = self.value()?;
+            object.insert(str, value);
+            return Ok(());
+        }
+        Err(JsonParseError::new(String::from("Expected ':'"), self))
     }
 }
