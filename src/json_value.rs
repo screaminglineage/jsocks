@@ -17,7 +17,7 @@ pub enum JsonValue {
 }
 
 impl JsonValue {
-    fn dump(&self) -> String {
+    pub fn dump(&self) -> String {
         match self {
             Self::Null => format!("null"),
             Self::JsonBool(JsonBool::True) => format!("true"),

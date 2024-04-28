@@ -29,7 +29,7 @@ impl Parser {
         Self { tokens, current: 0 }
     }
 
-    pub fn parse(&mut self) -> Option<JsonValue> {
+    pub fn parse(mut self) -> Option<JsonValue> {
         match self.json() {
             Ok(v) => Some(v),
             Err(e) => {
