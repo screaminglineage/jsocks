@@ -1,22 +1,7 @@
+use crate::json_value::*;
 use crate::lexer::*;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use TokenKind as tk;
-
-#[derive(Debug)]
-pub enum JsonBool {
-    True,
-    False,
-}
-
-#[derive(Debug)]
-pub enum JsonValue {
-    Object(HashMap<String, JsonValue>),
-    Array(Vec<JsonValue>),
-    String(String),
-    Number(f64),
-    JsonBool(JsonBool),
-    Null,
-}
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -106,9 +91,9 @@ impl Parser {
     fn object(&mut self) -> JsonResult {
         if self.check(tk::RightBrace) {
             self.advance();
-            return Ok(JsonValue::Object(HashMap::new()));
+            return Ok(JsonValue::Object(IndexMap::new()));
         }
-        let mut members = HashMap::new();
+        let mut members = IndexMap::new();
         self.member(&mut members)?;
 
         while self.check(tk::Comma) {
@@ -167,7 +152,7 @@ impl Parser {
         }
     }
 
-    fn member(&mut self, object: &mut HashMap<String, JsonValue>) -> Result<(), JsonParseError> {
+    fn member(&mut self, object: &mut IndexMap<String, JsonValue>) -> Result<(), JsonParseError> {
         self.advance();
         let JsonValue::String(str) = self.string()? else {
             return Err(JsonParseError::new(String::from("Expected String"), self));

@@ -1,3 +1,4 @@
+mod json_value;
 mod lexer;
 mod parser;
 use std::{fs, io};
