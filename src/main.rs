@@ -27,7 +27,7 @@ fn main() -> Result<(), JsocksError> {
     let data = fs::read_to_string(json_path).map_err(|e| JsocksError::IOError(e))?;
 
     if let Some(json) = parse_json(data) {
-        println!("{:?}", json);
+        println!("{}", json.dump());
     } else {
         println!("Failed to parse JSON");
     }
