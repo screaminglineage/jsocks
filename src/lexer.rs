@@ -124,17 +124,18 @@ impl Lexer {
         let string: String = self
             .source
             .iter()
-            .enumerate()
             .skip(start_index)
             .take(self.index - start_index)
-            .map(|(_, ch)| ch)
             .collect();
 
         let token = match string.as_str() {
             "true" => Token::new(TokenKind::True, start_index),
             "false" => Token::new(TokenKind::False, start_index),
             "null" => Token::new(TokenKind::Null, start_index),
-            _ => return None,
+            _ => {
+                eprintln!("Unexpected token `{}` at: {}", string, start_index);
+                return None
+            }
         };
         tokens.push(token);
         Some(())

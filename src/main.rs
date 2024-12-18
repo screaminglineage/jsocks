@@ -28,6 +28,8 @@ fn main() -> Result<(), JsocksError> {
 
     if let Some(json) = parse_json(data) {
         println!("{:?}", json);
+    } else {
+        println!("Failed to parse JSON");
     }
     Ok(())
 }

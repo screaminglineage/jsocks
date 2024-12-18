@@ -30,13 +30,7 @@ impl Parser {
     }
 
     pub fn parse(mut self) -> Option<JsonValue> {
-        match self.json() {
-            Ok(v) => Some(v),
-            Err(e) => {
-                eprintln!("{} at {}", e.msg, e.location);
-                None
-            }
-        }
+        self.json().map_err(|e| eprintln!("{} at {}", e.msg, e.location)).ok()
     }
 
     fn peek(&self) -> Option<&Token> {
@@ -102,7 +96,7 @@ impl Parser {
         }
 
         if !self.check(tk::RightBrace) {
-            return Err(JsonParseError::new(String::from("Expected '}}'"), self));
+            return Err(JsonParseError::new(String::from("Expected '}'"), self));
         }
         self.advance();
         return Ok(JsonValue::Object(members));
