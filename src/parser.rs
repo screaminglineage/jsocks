@@ -69,11 +69,28 @@ impl Parser {
 
     #[rustfmt::skip]
     fn value(&mut self) -> JsonResult {
+        // TODO: check for the plus and minus cases during the lexing phase instead
         match self.advance() {
             Some(Token { kind: tk::LeftBrace, .. }) => self.object(),
             Some(Token { kind: tk::LeftBracket, ..}) => self.array(),
             Some(Token { kind: tk::DoubleQuote, ..}) => self.string(),
             Some(Token { kind: tk::Number(num), ..}) => Ok(JsonValue::Number(*num)),
+            Some(Token { kind: tk::Plus, ..}) => {
+                if let Some(Token { kind: tk::Number(num), .. }) = self.peek().cloned() {
+                    self.advance();
+                    return Ok(JsonValue::Number(num))
+                } else {
+                    Err(JsonParseError::new(String::from("Expected value"), self))
+                }
+            }
+            Some(Token { kind: tk::Minus, ..}) => {
+                if let Some(Token { kind: tk::Number(num), .. }) = self.peek().cloned() {
+                    self.advance();
+                    return Ok(JsonValue::Number(-num))
+                } else {
+                    Err(JsonParseError::new(String::from("Expected value"), self))
+                }
+            }
             Some(Token { kind: tk::True, ..}) => Ok(JsonValue::JsonBool(JsonBool::True)),
             Some(Token { kind: tk::False, ..}) => Ok(JsonValue::JsonBool(JsonBool::False)),
             Some(Token { kind: tk::Null, ..}) => Ok(JsonValue::Null),
